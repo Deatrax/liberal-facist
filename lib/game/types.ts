@@ -32,12 +32,38 @@ export interface GamePlayer {
 
 export type LogKind = "info" | "nominate" | "vote" | "policy" | "power" | "death" | "end";
 
+/**
+ * What happened, as a machine-readable tag. Clients turn these into sound cues, so every player
+ * hears the same public moments without anyone parsing log text.
+ */
+export type LogEvent =
+  | "start"
+  | "round"
+  | "nominate"
+  | "elected"
+  | "rejected"
+  | "not-hitler"
+  | "policy"
+  | "tracker"
+  | "chaos"
+  | "power"
+  | "investigate"
+  | "special"
+  | "peek"
+  | "execute"
+  | "veto-ask"
+  | "veto-agree"
+  | "veto-refuse"
+  | "reshuffle"
+  | "win";
+
 export interface LogEntry {
   n: number;
   kind: LogKind;
   text: string;
   /** Set on "policy" entries so the UI can tint them. */
   policy?: Policy;
+  ev?: LogEvent;
 }
 
 /** Private knowledge a player earned (investigation results, peeks). Only ever sent to its owner. */

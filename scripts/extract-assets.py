@@ -325,7 +325,9 @@ def extract_wordmark(rulebook: Path, work: Path) -> None:
 
     # Wordmark: big block, transparent outside / white letter faces kept.
     mark, _ = icon_bbox(dark, (200, 700, 2350, 2300), 600, min_thick=0)
-    save(cut_outside(crop(cover, mark, 6), tol=40), "wordmark.webp", width=900)
+    # Unconfined flood fill (huge band): the slanted logo has deep empty corners, and the white letter
+    # faces are enclosed by the dark outline so they stay opaque.
+    save(cut_outside(crop(cover, mark, 6), tol=40, band=10**6), "wordmark.webp", width=900)
 
     # Neutral emblem (sword + olive branch, the middle icon of the trio), tinted ink.
     trio_y0, trio_y1 = 2350, 2950
