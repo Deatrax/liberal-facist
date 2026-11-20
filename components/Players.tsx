@@ -57,7 +57,7 @@ function Seat({
   return (
     <li
       className={cx(
-        "relative flex min-h-[66px] min-w-0 flex-col justify-between gap-1.5 rounded-[4px] border-[1.5px] px-2.5 py-2",
+        "relative flex min-h-[66px] min-w-0 flex-col justify-between gap-1.5 rounded-[4px] border-[1.5px] px-2.5 py-2 lg:min-h-[58px] lg:gap-1 lg:py-1.5",
         !p.alive ? "border-ink/20 bg-panel text-ink-soft" : waiting ? "border-ink bg-paper" : "border-ink/25 bg-paper",
         idle && p.alive && "opacity-55",
       )}
@@ -141,8 +141,8 @@ export function Players({ game, idle, meId }: { game: GameView; idle: Set<string
   const nein = lv ? Object.values(lv.votes).length - ja : 0;
 
   return (
-    <section aria-label="Players" className="flex flex-col gap-2">
-      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+    <section aria-label="Players" className="flex flex-col gap-2 lg:min-h-0 lg:overflow-y-auto">
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:grid-cols-2">
         {game.players.map((p) => (
           <Seat
             key={p.id}
