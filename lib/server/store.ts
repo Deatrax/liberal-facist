@@ -37,6 +37,9 @@ export interface Store {
   poll(code: string, playerId: string | null): Promise<PollResult | null>;
 }
 
+/** A deployment mistake (not a bug): the message is safe, and useful, to show to the user. */
+export class ConfigError extends Error {}
+
 declare global {
   // Shared across route modules in `next dev`, where each route gets its own module instance.
   var __shStore: Store | undefined;
@@ -56,7 +59,7 @@ export function getStore(): Store {
   } else {
     if (process.env.VERCEL) {
       // Serverless instances don't share memory: an in-memory store would silently lose rooms.
-      throw new Error(
+      throw new ConfigError(
         "Redis is not configured. Add the Upstash Redis integration (Vercel Marketplace) so UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL / KV_REST_API_TOKEN) are set.",
       );
     }

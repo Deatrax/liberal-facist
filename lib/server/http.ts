@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { normalizeCode, type ServiceResult } from "./rooms";
+import { ConfigError } from "./store";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
@@ -26,6 +27,13 @@ export const credentials = (req: Request) => ({
   token: req.headers.get("x-player-token") ?? "",
 });
 
+/** Unexpected errors become a plain 500; a missing Redis configuration says so. */
+export function errorResponse(e: unknown): Response {
+  console.error("[secret-hitler]", e);
+  if (e instanceof ConfigError) return json({ error: e.message }, 500);
+  return json({ error: "Server error. Try again in a moment." }, 500);
+}
+
 type Ctx = { params: Promise<{ code: string }> };
 
 /** Wraps a handler: validates the room code and turns unexpected errors into a plain 500. */
@@ -36,8 +44,7 @@ export function withRoom(handler: (req: Request, code: string) => Promise<Respon
     try {
       return await handler(req, code);
     } catch (e) {
-      console.error("[secret-hitler]", e);
-      return json({ error: "Server error. Try again in a moment." }, 500);
+      return errorResponse(e);
     }
   };
 }
