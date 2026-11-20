@@ -47,8 +47,8 @@ export function Game({ room }: { room: Room }) {
   const closeSheet = () => setSheet(null);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[760px] flex-col gap-4 px-4 pb-6">
-      <header className="sticky top-0 z-30 -mx-4 flex items-center gap-2 border-b border-ink/20 bg-paper px-4 py-2">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[760px] flex-col gap-4 px-4 pb-6 lg:max-w-[1400px] lg:px-6">
+      <header className="sticky top-0 z-30 -mx-4 flex items-center gap-2 border-b border-ink/20 bg-paper px-4 py-2 lg:-mx-6 lg:px-6">
         <img src="/cards/emblem-neutral.webp" alt="" width={360} height={355} className="hidden h-7 w-7 min-[390px]:block" />
         <span className="font-mono text-[13px] font-semibold tracking-[0.3em]" aria-label={`Room ${view.code}`}>
           {view.code}
@@ -86,11 +86,16 @@ export function Game({ room }: { room: Room }) {
         </section>
       )}
 
-      <Board game={game} />
-      <Players game={game} idle={room.idle} meId={view.me.id} />
-
-      <div className="mt-auto" />
-      <ActionDock game={game} meId={view.me.id} hostId={view.hostId} act={room.act} pending={room.pending} error={room.error} />
+      {/* Phones: one column (these wrappers vanish via display: contents). Wide screens: the board on the
+          left (~65%), seats and your action area in a sticky column on the right (~35%). */}
+      <div className="contents lg:grid lg:grid-cols-[minmax(0,13fr)_minmax(0,7fr)] lg:items-start lg:gap-6">
+        <Board game={game} />
+        <aside className="contents lg:sticky lg:top-[76px] lg:flex lg:max-h-[calc(100dvh-92px)] lg:flex-col lg:gap-3">
+          <Players game={game} idle={room.idle} meId={view.me.id} />
+          <div className="mt-auto lg:hidden" />
+          <ActionDock game={game} meId={view.me.id} hostId={view.hostId} act={room.act} pending={room.pending} error={room.error} />
+        </aside>
+      </div>
 
       {sheet === "role" && (
         <Sheet label="Your cards" onClose={closeSheet}>

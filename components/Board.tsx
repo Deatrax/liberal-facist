@@ -56,7 +56,7 @@ function FascistSlot({ index, power, vetoSlot, tile, fresh }: { index: number; p
       role="img"
       aria-label={`${label}${tile ? " (enacted)" : ""}`}
       className={cx(
-        "relative flex min-h-[104px] flex-col items-center justify-center px-1.5 py-2 text-center",
+        "relative flex min-h-[104px] flex-col items-center justify-center px-1.5 py-2 text-center lg:min-h-[120px]",
         red ? "bg-fas-frame text-white" : "bg-paper text-fas-ink",
         index % 3 !== 0 && (red ? "border-l-[3px] border-dotted border-white" : "border-l-[3px] border-dotted border-fas-frame"),
       )}
@@ -65,17 +65,17 @@ function FascistSlot({ index, power, vetoSlot, tile, fresh }: { index: number; p
       {index === 3 && <Arrow tone="white" className="-left-[12px] hidden sm:grid" />}
 
       {tile ? (
-        <TileImg policy="fascist" className={cx("h-[84px] w-auto", fresh && "place-tile")} />
+        <TileImg policy="fascist" className={cx("h-[84px] w-auto lg:h-[clamp(116px,17dvh,184px)]", fresh && "place-tile")} />
       ) : isWin ? (
         <>
-          <img src="/cards/emblem-fascist.webp" alt="" width={388} height={458} className="h-[62px] w-auto" />
-          <p className="mt-1 text-[10px] font-medium uppercase leading-tight tracking-wide">Fascists win</p>
+          <img src="/cards/emblem-fascist.webp" alt="" width={388} height={458} className="h-[62px] w-auto lg:h-[clamp(84px,11dvh,132px)]" />
+          <p className="mt-1 text-[10px] font-medium uppercase leading-tight tracking-wide lg:text-[11px]">Fascists win</p>
         </>
       ) : info ? (
         <>
-          <img src={info.icon} alt="" className="h-9 w-auto max-w-[64px] object-contain" />
-          <p className="mt-1.5 text-[10px] font-medium uppercase leading-tight tracking-wide">{info.text}</p>
-          {vetoSlot && <p className="mt-0.5 text-[10px] font-semibold uppercase leading-tight tracking-wide">Veto unlocked</p>}
+          <img src={info.icon} alt="" className="h-9 w-auto max-w-[64px] object-contain lg:h-[clamp(48px,7dvh,88px)] lg:max-w-[110px]" />
+          <p className="mt-1.5 text-[10px] font-medium uppercase leading-tight tracking-wide lg:text-[11px]">{info.text}</p>
+          {vetoSlot && <p className="mt-0.5 text-[10px] font-semibold uppercase leading-tight tracking-wide lg:text-[11px]">Veto unlocked</p>}
         </>
       ) : (
         <div aria-hidden="true" className="dots-fas absolute inset-2" />
@@ -139,21 +139,21 @@ export function Board({ game }: { game: GameView }) {
   const freshL = useFreshSlot(game.liberalPolicies);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 lg:min-h-[max(520px,calc(100dvh-100px))] lg:max-h-[900px]">
       {/* ---------------- Fascist track ---------------- */}
-      <section aria-label="Fascist track" className="overflow-hidden rounded-[6px] border-[3px] border-fas-frame bg-fas-frame">
-        <h2 className="py-[3px] text-center font-display text-[17px] font-extrabold uppercase tracking-[0.34em] text-white">Fascist</h2>
-        <div className="grid sm:grid-cols-2">
+      <section aria-label="Fascist track" className="flex flex-col overflow-hidden rounded-[6px] border-[3px] border-fas-frame bg-fas-frame lg:flex-1">
+        <h2 className="py-[3px] text-center font-display text-[17px] font-extrabold uppercase tracking-[0.34em] text-white lg:text-[20px]">Fascist</h2>
+        <div className="grid sm:grid-cols-2 lg:flex-1">
           <div className="grid grid-cols-3 bg-paper">
             {[0, 1, 2].map((i) => (
               <FascistSlot key={i} index={i} power={game.powers[i] ?? null} vetoSlot={false} tile={game.fascistPolicies > i} fresh={freshF === i} />
             ))}
           </div>
-          <div className="bg-fas-frame">
+          <div className="bg-fas-frame lg:flex lg:flex-col">
             <p className="mx-2 mt-2 rounded-full bg-paper px-2 py-0.5 text-center text-[10px] font-medium uppercase leading-snug tracking-wide text-fas-ink sm:mt-2">
               Fascists win if Hitler is elected Chancellor
             </p>
-            <div className="grid grid-cols-3">
+            <div className="grid grid-cols-3 lg:flex-1">
               {[3, 4, 5].map((i) => (
                 <FascistSlot key={i} index={i} power={game.powers[i] ?? null} vetoSlot={i === 4} tile={game.fascistPolicies > i} fresh={freshF === i} />
               ))}
@@ -163,17 +163,17 @@ export function Board({ game }: { game: GameView }) {
       </section>
 
       {/* ---------------- Liberal track ---------------- */}
-      <section aria-label="Liberal track" className="overflow-hidden rounded-[6px] border-[3px] border-lib-frame bg-lib-frame">
+      <section aria-label="Liberal track" className="flex flex-col overflow-hidden rounded-[6px] border-[3px] border-lib-frame bg-lib-frame lg:flex-1">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center px-2 py-1">
           <div className="justify-self-start">
             <Pile label="Draw" count={game.drawCount} />
           </div>
-          <h2 className="font-display text-[17px] font-extrabold uppercase tracking-[0.34em] text-white">Liberal</h2>
+          <h2 className="font-display text-[17px] font-extrabold uppercase tracking-[0.34em] text-white lg:text-[20px]">Liberal</h2>
           <div className="justify-self-end">
             <Pile label="Discard" count={game.discardCount} />
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-px bg-lib-frame">
+        <div className="grid grid-cols-5 gap-px bg-lib-frame lg:flex-1">
           {[0, 1, 2, 3, 4].map((i) => {
             const win = i === 4;
             const tile = game.liberalPolicies > i;
@@ -182,10 +182,10 @@ export function Board({ game }: { game: GameView }) {
                 key={i}
                 role="img"
                 aria-label={`Liberal policy ${i + 1}${win ? ": Liberals win" : ""}${tile ? " (enacted)" : ""}`}
-                className={cx("relative grid min-h-[88px] place-items-center", win ? "bg-lib-deep" : "dots-lib bg-paper")}
+                className={cx("relative grid min-h-[88px] place-items-center lg:min-h-[110px]", win ? "bg-lib-deep" : "dots-lib bg-paper")}
               >
                 {tile ? (
-                  <TileImg policy="liberal" className={cx("h-[76px] w-auto", freshL === i && "place-tile")} />
+                  <TileImg policy="liberal" className={cx("h-[76px] w-auto lg:h-[clamp(108px,16dvh,172px)]", freshL === i && "place-tile")} />
                 ) : win ? (
                   <img src="/cards/emblem-liberal.webp" alt="" width={420} height={393} className="w-[86%]" />
                 ) : null}

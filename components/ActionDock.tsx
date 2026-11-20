@@ -464,7 +464,10 @@ export function ActionDock({
   const office = game.presidentId === meId ? "president" : game.chancellorId === meId ? "chancellor" : null;
 
   return (
-    <div data-dock className="sticky bottom-0 z-20 -mx-4 max-h-[64dvh] overflow-y-auto border-t-[1.5px] border-ink bg-paper px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+    <div
+      data-dock
+      className="sticky bottom-0 z-20 -mx-4 max-h-[64dvh] overflow-y-auto border-t-[1.5px] border-ink bg-paper px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 lg:static lg:mx-0 lg:max-h-[min(62dvh,600px)] lg:shrink-0 lg:rounded-[6px] lg:border-[1.5px] lg:pb-4"
+    >
       {error && (
         <p role="alert" className="mb-2 rounded-[3px] border border-fas-frame bg-fas-pale/40 px-2 py-1 text-[12px] text-fas-ink">
           {error}
