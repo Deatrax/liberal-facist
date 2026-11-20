@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GameView, PublicPlayer, VoteResult } from "@/lib/game";
-import { playSound } from "@/lib/client/sound";
 import { BallotImg, CardBackImg, ChancellorPlacard, Check, Flip, PresidentPlacard, RoleImg, Skull, cx } from "./cards";
 
 /** 'reveal' while the ballots flip (~5 s after a vote resolves), 'compact' afterwards. */
@@ -14,7 +13,6 @@ function useVoteReveal(lastVote: VoteResult | null): "reveal" | "compact" {
     if (id !== null && id !== seen.current) {
       seen.current = id;
       setRevealing(id);
-      playSound("reveal");
       const t = setTimeout(() => setRevealing(null), 5000);
       return () => clearTimeout(t);
     }

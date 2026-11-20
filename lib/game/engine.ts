@@ -21,6 +21,7 @@ import type {
   Action,
   GamePlayer,
   GameState,
+  LogEvent,
   LogKind,
   Party,
   Policy,
@@ -150,7 +151,7 @@ export function createGame(
     log: [],
     logSeq: 0,
   };
-  log(s, "info", `A new game begins with ${n} players.`);
+  log(s, "info", `A new game begins with ${n} players.`, { ev: "start" });
   return s;
 }
 
@@ -205,7 +206,7 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
       s.chancellorId = a.chancellorId;
       s.votes = {};
       s.phase = "vote";
-      log(s, "nominate", `${actor.name} nominated ${target!.name} as Chancellor.`);
+      log(s, "nominate", `${actor.name} nominated ${target!.name} as Chancellor.`, { ev: "nominate" });
       return;
     }
 
@@ -247,7 +248,7 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
       if (!vetoUnlocked(s)) fail("Veto Power is not unlocked yet.");
       if (s.vetoRefused) fail("The President already refused your veto.");
       s.phase = "vetoDecision";
-      log(s, "info", `${actor.name} asked to veto this agenda.`);
+      log(s, "info", `${actor.name} asked to veto this agenda.`, { ev: "veto-ask" });
       return;
     }
 
@@ -257,13 +258,13 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
       if (a.agree) {
         s.discard.push(...s.hand);
         s.hand = [];
-        log(s, "info", `${actor.name} agreed to the veto. Both policies were discarded.`);
+        log(s, "info", `${actor.name} agreed to the veto. Both policies were discarded.`, { ev: "veto-agree" });
         reshuffleIfNeeded(s, rng);
         failGovernment(s, rng);
       } else {
         s.phase = "chancellorEnact";
         s.vetoRefused = true;
-        log(s, "info", `${actor.name} refused the veto. The Chancellor must enact a policy.`);
+        log(s, "info", `${actor.name} refused the veto. The Chancellor must enact a policy.`, { ev: "veto-refuse" });
       }
       return;
     }
@@ -281,14 +282,14 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
         targetId: target.id,
         party: power.party,
       });
-      log(s, "power", `${actor.name} investigated ${target.name}'s Party Membership.`);
+      log(s, "power", `${actor.name} investigated ${target.name}'s Party Membership.`, { ev: "investigate" });
       return;
     }
 
     case "specialElection": {
       requirePower(s, isPresident, "special");
       const target = requireTarget(s, "special", a.targetId);
-      log(s, "power", `${actor.name} called a Special Election: ${target.name} is the next Presidential Candidate.`);
+      log(s, "power", `${actor.name} called a Special Election: ${target.name} is the next Presidential Candidate.`, { ev: "special" });
       startNextRound(s, s.players.indexOf(target));
       return;
     }
@@ -297,13 +298,13 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
       requirePower(s, isPresident, "execute");
       const target = requireTarget(s, "execute", a.targetId);
       if (target.role === "hitler") {
-        log(s, "death", `${actor.name} executed ${target.name}.`);
+        log(s, "death", `${actor.name} executed ${target.name}.`, { ev: "execute" });
         target.alive = false;
         win(s, "liberal", "hitlerExecuted");
         return;
       }
       target.alive = false; // the table does NOT learn the executed player's role
-      log(s, "death", `${actor.name} executed ${target.name}.`);
+      log(s, "death", `${actor.name} executed ${target.name}.`, { ev: "execute" });
       startNextRound(s);
       return;
     }
@@ -314,7 +315,7 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
       if (power.kind === "special" || power.kind === "execute") fail("Choose a player first.");
       if (power.kind === "peek") {
         (s.notes[actor.id] ??= []).push({ round: s.round, kind: "peek", cards: s.deck.slice(0, 3) });
-        log(s, "power", `${actor.name} looked at the top three policies.`);
+        log(s, "power", `${actor.name} looked at the top three policies.`, { ev: "peek" });
       }
       startNextRound(s);
       return;
@@ -328,9 +329,9 @@ function handle(s: GameState, a: Action, actor: GamePlayer, rng: Rng): void {
 const label = (p: Policy) => (p === "liberal" ? "Liberal" : "Fascist");
 const names = (s: GameState, ids: string[]) => (ids.length ? ids.map((id) => playerById(s, id)!.name).join(", ") : "nobody");
 
-function log(s: GameState, kind: LogKind, text: string, policy?: Policy): void {
+function log(s: GameState, kind: LogKind, text: string, extra: { policy?: Policy; ev?: LogEvent } = {}): void {
   s.logSeq += 1;
-  s.log.push(policy ? { n: s.logSeq, kind, text, policy } : { n: s.logSeq, kind, text });
+  s.log.push({ n: s.logSeq, kind, text, ...extra });
   if (s.log.length > 400) s.log.splice(0, s.log.length - 400);
 }
 
@@ -352,7 +353,7 @@ function beginRound(s: GameState): void {
   s.hand = [];
   s.power = null;
   s.vetoRefused = false;
-  log(s, "info", `${presidentOf(s).name} is the Presidential Candidate.`);
+  log(s, "info", `${presidentOf(s).name} is the Presidential Candidate.`, { ev: "round" });
 }
 
 /**
@@ -382,7 +383,7 @@ function win(s: GameState, team: Party, reason: WinReason): void {
     hitlerElected: "Hitler was elected Chancellor.",
     hitlerExecuted: "Hitler was executed.",
   };
-  log(s, "end", `${team === "liberal" ? "Liberals" : "Fascists"} win. ${text[reason]}`);
+  log(s, "end", `${team === "liberal" ? "Liberals" : "Fascists"} win. ${text[reason]}`, { ev: "win" });
 }
 
 /** Rulebook: with fewer than three tiles left, shuffle the discard into the deck (never just stack it on top). */
@@ -390,7 +391,7 @@ function reshuffleIfNeeded(s: GameState, rng: Rng): void {
   if (s.deck.length >= 3) return;
   s.deck = shuffle([...s.deck, ...s.discard], rng);
   s.discard = [];
-  log(s, "info", "The discard pile was shuffled back into the policy deck.");
+  log(s, "info", "The discard pile was shuffled back into the policy deck.", { ev: "reshuffle" });
 }
 
 /** Places a policy on its track, resets the Election Tracker and checks the policy win conditions. */
@@ -398,7 +399,7 @@ function enact(s: GameState, policy: Policy, text: string): void {
   if (policy === "liberal") s.liberalPolicies += 1;
   else s.fascistPolicies += 1;
   s.electionTracker = 0; // any policy played face-up resets it
-  log(s, "policy", text, policy);
+  log(s, "policy", text, { policy, ev: "policy" });
   if (s.liberalPolicies >= LIBERAL_WIN) win(s, "liberal", "liberalPolicies");
   else if (s.fascistPolicies >= FASCIST_WIN) win(s, "fascist", "fascistPolicies");
 }
@@ -416,7 +417,7 @@ function endOfSession(s: GameState, enacted: Policy, rng: Rng): void {
       peek: "Policy Peek",
       execute: "Execution",
     }[power];
-    log(s, "power", `${presidentOf(s).name} must use a Presidential Power: ${what}.`);
+    log(s, "power", `${presidentOf(s).name} must use a Presidential Power: ${what}.`, { ev: "power" });
   } else {
     startNextRound(s);
   }
@@ -437,11 +438,7 @@ function resolveVote(s: GameState, rng: Rng): void {
     passed,
   };
   s.votes = {};
-  log(
-    s,
-    "vote",
-    `${passed ? "Elected" : "Rejected"} ${ja.length}–${nein.length}: ${president.name} and ${chancellor.name}. Ja!: ${names(s, ja)}. Nein: ${names(s, nein)}.`,
-  );
+  log(s, "vote", `${passed ? "Elected" : "Rejected"} ${ja.length}–${nein.length}: ${president.name} and ${chancellor.name}. Ja!: ${names(s, ja)}. Nein: ${names(s, nein)}.`, { ev: passed ? "elected" : "rejected" });
 
   if (!passed) {
     failGovernment(s, rng);
@@ -455,7 +452,7 @@ function resolveVote(s: GameState, rng: Rng): void {
       return;
     }
     if (!s.confirmedNotHitler.includes(chancellor.id)) s.confirmedNotHitler.push(chancellor.id);
-    log(s, "info", `${chancellor.name} is not Hitler.`);
+    log(s, "info", `${chancellor.name} is not Hitler.`, { ev: "not-hitler" });
   }
   s.hand = s.deck.splice(0, 3);
   s.phase = "presidentDiscard";
@@ -465,12 +462,12 @@ function resolveVote(s: GameState, rng: Rng): void {
 function failGovernment(s: GameState, rng: Rng): void {
   s.electionTracker += 1;
   if (s.electionTracker < CHAOS_AT) {
-    log(s, "info", `Election Tracker: ${s.electionTracker}.`);
+    log(s, "info", `Election Tracker: ${s.electionTracker}.`, { ev: "tracker" });
     startNextRound(s);
     return;
   }
   // Chaos: reveal and enact the top policy, ignore its power, forget term limits.
-  log(s, "info", "Three failed governments. The country is thrown into chaos.");
+  log(s, "info", "Three failed governments. The country is thrown into chaos.", { ev: "chaos" });
   reshuffleIfNeeded(s, rng);
   const top = s.deck.shift()!;
   s.lastElected = null;

@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import type { GameView, Policy } from "@/lib/game";
+import { audio } from "@/lib/client/audio";
 import { CardBackImg, Flip, PartyImg, RoleImg, cx } from "./cards";
 
 const PARTY_WORD = { liberal: "a Liberal", fascist: "a Fascist" } as const;
@@ -24,7 +25,10 @@ export function RoleCards({ me, names }: { me: GameView["me"]; names: Map<string
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          onClick={() => setFlipped((f) => !f)}
+          onClick={() => {
+            void audio.cue("flip");
+            setFlipped((f) => !f);
+          }}
           aria-pressed={flipped}
           aria-label={show ? "Hide your cards" : "Turn your cards face up"}
           className="no-select block w-full rounded-[6px]"
@@ -33,7 +37,10 @@ export function RoleCards({ me, names }: { me: GameView["me"]; names: Map<string
         </button>
         <button
           type="button"
-          onClick={() => setFlipped((f) => !f)}
+          onClick={() => {
+            void audio.cue("flip");
+            setFlipped((f) => !f);
+          }}
           aria-pressed={flipped}
           aria-label={show ? "Hide your cards" : "Turn your cards face up"}
           className="no-select block w-full rounded-[6px]"
@@ -48,6 +55,7 @@ export function RoleCards({ me, names }: { me: GameView["me"]; names: Map<string
           className={cx("btn no-select touch-none", held && "bg-ink text-paper")}
           onPointerDown={(e) => {
             e.currentTarget.setPointerCapture(e.pointerId);
+            void audio.cue("flip");
             setHeld(true);
           }}
           onPointerUp={() => setHeld(false)}

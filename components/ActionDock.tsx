@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import type { AnyAction, GameView, Policy, PowerKind, Prompt, Vote } from "@/lib/game";
+import { audio } from "@/lib/client/audio";
 import { BallotImg, FlipTile, PartyImg, cx, Flip, CardBackImg } from "./cards";
 import { RoleCards } from "./RoleCards";
 
@@ -94,6 +95,7 @@ function Picker({
                   disabled={!ok}
                   aria-pressed={sel === p.id}
                   onClick={() => {
+                    void audio.cue("tap");
                     setSel(p.id);
                     setArmed(false);
                   }}
@@ -159,8 +161,13 @@ function PolicyHand({
               aria-pressed={pick === i}
               aria-label={up[i] ? (mode === "discard" ? `${policy} policy. Tap to mark for discarding` : `${policy} policy`) : "Policy, face down. Tap to look"}
               onClick={() => {
-                if (!up[i]) setUp((u) => u.map((v, j) => (j === i ? true : v)));
-                else if (mode === "discard") setPick((p) => (p === i ? null : i));
+                if (!up[i]) {
+                  void audio.cue("flip");
+                  setUp((u) => u.map((v, j) => (j === i ? true : v)));
+                } else if (mode === "discard") {
+                  void audio.cue("tap");
+                  setPick((p) => (p === i ? null : i));
+                }
               }}
             >
               <FlipTile policy={policy} up={!!up[i]} />
@@ -172,7 +179,10 @@ function PolicyHand({
         ))}
       </ul>
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className="btn btn-primary" disabled={pending || (mode === "discard" && pick === null)} onClick={() => onConfirm(pick)}>
+        <button type="button" className="btn btn-primary" disabled={pending || (mode === "discard" && pick === null)} onClick={() => {
+            void audio.cue("ballot");
+            onConfirm(pick);
+          }}>
           {confirmLabel}
         </button>
         {extra}
@@ -181,6 +191,7 @@ function PolicyHand({
             type="button"
             className="btn btn-quiet"
             onClick={() => {
+              void audio.cue("flip");
               setUp(hand.map(() => false));
               setPick(null);
             }}
@@ -207,7 +218,10 @@ function Ballots({ game, pending, onVote }: { game: GameView; pending: boolean; 
             key={v}
             type="button"
             aria-pressed={sel === v}
-            onClick={() => setSel(v)}
+            onClick={() => {
+              void audio.cue("tap");
+              setSel(v);
+            }}
             className={cx(
               "no-select rounded-[6px] transition-transform",
               sel === v ? "-translate-y-1 outline outline-[3px] outline-offset-2 outline-ink" : "opacity-90",
@@ -217,7 +231,11 @@ function Ballots({ game, pending, onVote }: { game: GameView; pending: boolean; 
           </button>
         ))}
       </div>
-      <button type="button" className="btn btn-primary" disabled={!sel || pending} onClick={() => sel && onVote(sel)}>
+      <button type="button" className="btn btn-primary" disabled={!sel || pending} onClick={() => {
+          if (!sel) return;
+          void audio.cue("ballot");
+          onVote(sel);
+        }}>
         {sel ? `Cast ${sel === "ja" ? "Ja!" : "Nein"}` : "Pick a ballot"}
       </button>
     </div>
@@ -229,7 +247,10 @@ function InvestigationResult({ name, party, pending, onDone }: { name: string; p
   return (
     <div className="flex flex-col gap-3">
       <Line>{up ? `${name} is in the ${party === "fascist" ? "Fascist" : "Liberal"} party.` : `Party Membership of ${name}`}</Line>
-      <button type="button" onClick={() => setUp((u) => !u)} aria-label={up ? "Hide the card" : "Look at the card"} className="no-select mx-auto block w-[44%] max-w-[170px]">
+      <button type="button" onClick={() => {
+          void audio.cue("flip");
+          setUp((u) => !u);
+        }} aria-label={up ? "Hide the card" : "Look at the card"} className="no-select mx-auto block w-[44%] max-w-[170px]">
         <Flip up={up} className="aspect-[520/735]" back={<CardBackImg />} front={<PartyImg party={party} />} />
       </button>
       <button type="button" className="btn btn-primary" disabled={pending} onClick={onDone}>
@@ -296,7 +317,10 @@ export function ActionDock({
             <div className="mx-auto w-full max-w-[420px]">
               <RoleCards me={me} names={names} />
             </div>
-            <button type="button" className="btn btn-primary" disabled={pending} onClick={() => act({ type: "ready" })}>
+            <button type="button" className="btn btn-primary" disabled={pending} onClick={() => {
+                void audio.cue("confirm");
+                void act({ type: "ready" });
+              }}>
               Ready
             </button>
           </div>

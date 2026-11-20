@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { WinReason } from "@/lib/game";
-import { playSound } from "@/lib/client/sound";
 import type { Room } from "@/lib/client/useRoom";
 import { ActionDock } from "./ActionDock";
 import { Board } from "./Board";
 import { cx, PartyImg } from "./cards";
-import { LogSheet, MenuSheet, RulesSheet } from "./Panels";
+import { CreditsSheet, LogSheet, MenuSheet, RulesSheet } from "./Panels";
 import { Players } from "./Players";
 import { RoleCards } from "./RoleCards";
 import { Sheet } from "./Sheet";
@@ -19,7 +18,7 @@ const WIN_TEXT: Record<WinReason, string> = {
   hitlerExecuted: "Hitler was executed.",
 };
 
-type SheetName = "role" | "log" | "menu" | "rules" | null;
+type SheetName = "role" | "log" | "menu" | "rules" | "credits" | null;
 
 export function Game({ room }: { room: Room }) {
   const view = room.view!;
@@ -44,14 +43,6 @@ export function Game({ room }: { room: Room }) {
       document.title = "Secret Hitler";
     };
   }, [needsMe]);
-
-  // Optional sound when a policy lands.
-  const prev = useRef({ l: game.liberalPolicies, f: game.fascistPolicies });
-  useEffect(() => {
-    if (game.liberalPolicies > prev.current.l) playSound("policy-liberal");
-    else if (game.fascistPolicies > prev.current.f) playSound("policy-fascist");
-    prev.current = { l: game.liberalPolicies, f: game.fascistPolicies };
-  }, [game.liberalPolicies, game.fascistPolicies]);
 
   const closeSheet = () => setSheet(null);
 
@@ -110,7 +101,8 @@ export function Game({ room }: { room: Room }) {
       )}
       {sheet === "log" && <LogSheet game={game} onClose={closeSheet} />}
       {sheet === "rules" && <RulesSheet onClose={closeSheet} />}
-      {sheet === "menu" && <MenuSheet view={view} pending={room.pending} onClose={closeSheet} onRules={() => setSheet("rules")} act={room.act} />}
+      {sheet === "credits" && <CreditsSheet onClose={closeSheet} />}
+      {sheet === "menu" && <MenuSheet view={view} pending={room.pending} onClose={closeSheet} onRules={() => setSheet("rules")} onCredits={() => setSheet("credits")} act={room.act} />}
     </div>
   );
 }

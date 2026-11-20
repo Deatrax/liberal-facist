@@ -2,7 +2,7 @@
 
 A private, non-commercial web version of the board game **Secret Hitler** for 5–10 friends, each on their own phone or laptop. No accounts, no public lobby. It deploys to a **free Vercel Hobby** account and keeps its state in **Upstash Redis** (free tier).
 
-- Next.js (App Router) + TypeScript + Tailwind, no component library, CSS-only animations
+- Next.js (App Router) + TypeScript + Tailwind, no component library, CSS-only animations, optional music and sound
 - All rules and randomness run **on the server**; browsers only send intents ("nominate X") and receive a filtered, per-player view
 - Sync is cheap polling (no WebSockets, which Vercel functions can't hold)
 - The card art is cropped from the colorized print-and-play PDF; the UI is laid out like those pieces
@@ -73,6 +73,45 @@ browser ──GET /api/room/CODE/version?p=me──▶ { v, idle[] }          ev
 Free Upstash plans count commands per month (check the current limit on their pricing page; it was 500 K/month when this was written). Per hour of play with 8 players, expect roughly **5–17 thousand Redis commands** (the low end when polls share a serverless instance and its micro-cache, the high end when they don't), plus about two commands per action. A few game nights a week fit comfortably.
 
 Every poll is also a Vercel **function invocation** (about 2,000 per player-hour, so ~16 K per hour for 8 players). Check the current Hobby limits on Vercel's pricing page; at 1 M invocations/month that's roughly 60 hours of 8-player play, far more than a few game nights a week. Pausing hidden tabs and the 5 s lobby / game-over cadence keep it down.
+
+## Music and sound
+
+**Menu → Music / Effects / Volume.** Both are **off by default** (and remembered per browser). Browsers only allow sound after a tap, so turning a toggle on is what starts it. Nobody hears anything they didn't switch on, which matters when everyone is also on a voice call. On iPhones the ringer switch silences web audio.
+
+Music follows the state of the game and crossfades between beds; cues come from the game's own public event log, so every player hears the same moments at the same time.
+
+| Moment | Sound |
+|---|---|
+| Lobby, and again after the game ends | a calm, wistful bed |
+| The deal, role reveal, early rounds | a sparse, suspicious ambient bed |
+| Three Fascist policies enacted (the "Hitler zone") | a low swell, then a darker, insistent bed |
+| Tapping a tile or card / selecting / casting a ballot | card flips, a soft knock, a card laid down |
+| It's your turn (nominate, vote, discard, power) | a soft two-note bell |
+| Votes revealed | a flurry of ballots turning, then a chime (elected) or a hollow low note (rejected) |
+| Liberal policy | a card laid down and rising bells |
+| Fascist policy | a heavy stamp: a low thump, a door slam, a deep bell |
+| Election Tracker advances / chaos | a metallic tick / a rumble with a dissonant bell and a creak |
+| Investigate / Special Election / Policy Peek | a sonar-like ping / a short fanfare / cards fanning |
+| Veto asked | a latch and a low bell |
+| Execution (heard by everyone; the victim also gets a low toll) | a single pistol shot |
+| Game over | a bright fanfare for a Liberal win, a dark orchestral hit for a Fascist win, music ducking beneath |
+
+### Where the audio comes from
+
+Everything is **CC0 or CC BY**, listed with author, license and page in `data/audio-sources.json` (also shown in the in-app **Menu → Credits**). The short cues layer recorded sounds (cards, thuds, doors, the pistol) with tones synthesised in `scripts/build-audio.py`. Attribution is required for two items:
+
+- *Orchestral Stinger - Dramatic Entrance* by **tcarisland**, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (the Fascist-win hit)
+- *Gunshot Sounds* (CZ-52 pistol) by **Vincent Sevedge**, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (the execution shot). OpenGameArt's page lists CC0, but the archive's own license file says CC BY 3.0, so it is credited.
+
+The rest are CC0 (credit is a courtesy): music by Ruhinre, Juhani Junkala (SubspaceAudio), yd and cynicmusic; sounds by Kenney and BMacZero. Everything is from [OpenGameArt](https://opengameart.org).
+
+Regenerate the files (needs `ffmpeg`, `numpy`, `scipy`; downloads the sources first):
+
+```bash
+python3 scripts/build-audio.py /tmp/sh-audio    # writes public/audio/*.mp3 (~6.6 MB)
+```
+
+Music is streamed through `<audio>` elements (decoding the 5-minute bed would take ~110 MB of RAM on a phone), crossfaded for seamless loops, paused while the tab is hidden, and ducked under the victory stingers.
 
 ## Rules: decisions where the rulebook is silent
 

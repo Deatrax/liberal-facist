@@ -1,0 +1,110 @@
+[
+  {
+    "key": "longing",
+    "title": "The longing",
+    "author": "Ruhinre",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/the-longing",
+    "url": "https://opengameart.org/sites/default/files/longing.ogg",
+    "file": "longing.ogg",
+    "use": "Music: lobby and game over",
+    "attribution": false
+  },
+  {
+    "key": "horror",
+    "title": "Horror Atmosphere (Post Apocalyptic Wastelands)",
+    "author": "Juhani Junkala (SubspaceAudio)",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/horror-atmosphere",
+    "url": "https://opengameart.org/sites/default/files/Juhani%20Junkala%20-%20Post%20Apocalyptic%20Wastelands%20%5BLoop%20Ready%5D.ogg",
+    "file": "horror.ogg",
+    "use": "Music: during play, before the Hitler zone",
+    "attribution": false
+  },
+  {
+    "key": "insistent",
+    "title": "Insistent: background loop",
+    "author": "yd",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/insistent-background-loop",
+    "url": "https://opengameart.org/sites/default/files/Insistent.ogg",
+    "file": "insistent.ogg",
+    "use": "Music: once three Fascist policies are enacted (the Hitler zone)",
+    "attribution": false
+  },
+  {
+    "key": "fanfare",
+    "title": "Victory Fanfare Short",
+    "author": "cynicmusic",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/victory-fanfare-short",
+    "url": "https://opengameart.org/sites/default/files/Heavy_ConceptB.wav",
+    "file": "fanfare.wav",
+    "use": "Stinger: Liberals win",
+    "attribution": false
+  },
+  {
+    "key": "stinger",
+    "title": "Orchestral Stinger - Dramatic Entrance",
+    "author": "tcarisland",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "page": "https://opengameart.org/content/orchestral-stinger-dramatic-entrance",
+    "url": "https://opengameart.org/sites/default/files/orchestral_stinger_dramatic_entrance_0.mp3",
+    "file": "stinger.mp3",
+    "use": "Stinger: Fascists win (trimmed, faded and loudness-matched)",
+    "attribution": true
+  },
+  {
+    "key": "casino",
+    "title": "Casino Audio",
+    "author": "Kenney (kenney.nl)",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/54-casino-sound-effects-cards-dice-chips",
+    "url": "https://opengameart.org/sites/default/files/kenney_casino-audio.zip",
+    "file": "casino.zip",
+    "use": "Cues: card flips, ballots, shuffling, peek",
+    "attribution": false
+  },
+  {
+    "key": "rpg",
+    "title": "RPG Audio",
+    "author": "Kenney (kenney.nl)",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/50-rpg-sound-effects",
+    "url": "https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip",
+    "file": "rpg.zip",
+    "use": "Cues: doors, creaks and latches layered into the Fascist policy, chaos and veto sounds",
+    "attribution": false
+  },
+  {
+    "key": "metal",
+    "title": "Metal Impact Sounds",
+    "author": "Brian MacIntosh (BMacZero)",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "page": "https://opengameart.org/content/metal-impact-sounds",
+    "url": "https://opengameart.org/sites/default/files/{name}.wav",
+    "files": ["bong1", "clink2", "clink3", "thud2", "thud3"],
+    "use": "Cues: thuds, clinks and a low bell",
+    "attribution": false
+  },
+  {
+    "key": "gunshot",
+    "title": "Gunshot Sounds (CZ-52 pistol)",
+    "author": "Vincent Sevedge (shared by Tabasco)",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "page": "https://opengameart.org/content/gunshot-sounds",
+    "url": "https://opengameart.org/sites/default/files/sounds.zip",
+    "file": "gun.zip",
+    "use": "Cue: execution. The OpenGameArt page says CC0 but the archive's own license file says CC BY 3.0, so it is credited as CC BY 3.0.",
+    "attribution": true
+  }
+]

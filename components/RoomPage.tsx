@@ -6,6 +6,7 @@ import { useRoom, type Room } from "@/lib/client/useRoom";
 import { loadName, withDevSeat } from "@/lib/client/storage";
 import { Game } from "./Game";
 import { Lobby } from "./Lobby";
+import { useRoomAudio } from "./useRoomAudio";
 
 function Quiet({ children }: { children: React.ReactNode }) {
   return <main className="mx-auto flex max-w-[420px] flex-col items-center gap-4 px-4 py-24 text-center text-[14px]">{children}</main>;
@@ -45,6 +46,7 @@ function JoinForm({ code, room }: { code: string; room: Room }) {
 
 export function RoomPage({ code }: { code: string }) {
   const room = useRoom(code);
+  useRoomAudio(room.status === "ready" ? room.view : null);
   switch (room.status) {
     case "loading":
       return <Quiet>Loading…</Quiet>;

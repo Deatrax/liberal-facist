@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/lib/game";
 import type { Room } from "@/lib/client/useRoom";
 import { cx } from "./cards";
+import { CreditsSheet, SoundSheet } from "./Panels";
 
 function Chevron({ down }: { down?: boolean }) {
   return (
@@ -20,6 +21,7 @@ export function Lobby({ room }: { room: Room }) {
   const seats = view.seats;
   const isHost = view.me.isHost;
   const [copied, setCopied] = useState(false);
+  const [sheet, setSheet] = useState<"sound" | "credits" | null>(null);
   const link = typeof window === "undefined" ? "" : `${window.location.origin}/${view.code}`;
 
   const move = (i: number, d: -1 | 1) => {
@@ -125,6 +127,14 @@ export function Lobby({ room }: { room: Room }) {
           </button>
         </div>
       )}
+      <div className="flex justify-center">
+        <button type="button" className="btn btn-quiet" onClick={() => setSheet("sound")}>
+          Sound
+        </button>
+      </div>
+
+      {sheet === "sound" && <SoundSheet onClose={() => setSheet(null)} onCredits={() => setSheet("credits")} />}
+      {sheet === "credits" && <CreditsSheet onClose={() => setSheet(null)} />}
     </main>
   );
 }

@@ -4,7 +4,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GameView, RoomView } from "@/lib/game";
-import { setSoundEnabled, soundEnabled } from "@/lib/client/sound";
+import { audio, useAudioSettings } from "@/lib/client/audio";
+import sources from "@/data/audio-sources.json";
 import { cx } from "./cards";
 import { Sheet } from "./Sheet";
 
@@ -79,23 +80,99 @@ export function RulesSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
+export function CreditsSheet({ onClose }: { onClose: () => void }) {
+  return (
+    <Sheet label="Credits" onClose={onClose}>
+      <div className="flex flex-col gap-3 text-[13px] leading-relaxed">
+        <p>
+          <strong className="font-semibold">Secret Hitler</strong> is by Mike Boxleiter, Tommy Maranges and Mac Schubert (Goat, Wolf &amp; Cabbage),{" "}
+          <a className="underline underline-offset-2" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noreferrer">
+            CC BY-NC-SA 4.0
+          </a>
+          .
+        </p>
+        <p className="font-semibold">Music and sound</p>
+        <ul className="flex flex-col gap-2.5">
+          {sources.map((s) => (
+            <li key={s.key} className="border-l-[3px] border-ink/15 pl-2.5">
+              <a className="underline underline-offset-2" href={s.page} target="_blank" rel="noreferrer">
+                {s.title}
+              </a>{" "}
+              by {s.author},{" "}
+              <a className="underline underline-offset-2" href={s.licenseUrl} target="_blank" rel="noreferrer">
+                {s.license}
+              </a>
+              <span className="block text-ink-soft">{s.use}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-ink-soft">The bells, pings, stamps, rumbles and the Hitler-zone swell are synthesised for this project. Sources are layered, trimmed and loudness-matched.</p>
+      </div>
+    </Sheet>
+  );
+}
+
+/** Music / Effects toggles and the volume slider. The first tap on a toggle is what lets the browser play sound. */
+export function SoundControls() {
+  const sound = useAudioSettings();
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-2 gap-2">
+          <button type="button" className={cx("btn", sound.music && "btn-primary")} aria-pressed={sound.music} onClick={() => audio.setMusic(!sound.music)}>
+            Music: {sound.music ? "on" : "off"}
+          </button>
+          <button type="button" className={cx("btn", sound.effects && "btn-primary")} aria-pressed={sound.effects} onClick={() => audio.setEffects(!sound.effects)}>
+            Effects: {sound.effects ? "on" : "off"}
+          </button>
+        </div>
+      <label className="flex min-h-[44px] items-center gap-3 text-[13px]">
+          <span className="w-16 shrink-0 font-display text-[13px] font-bold uppercase tracking-[0.14em]">Volume</span>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={Math.round(sound.volume * 100)}
+            onChange={(e) => audio.setVolume(Number(e.target.value) / 100)}
+            onPointerUp={() => void audio.cue("tap")}
+            aria-label="Volume"
+            className="h-11 flex-1 cursor-pointer accent-ink"
+          />
+        </label>
+
+    </div>
+  );
+}
+
+export function SoundSheet({ onClose, onCredits }: { onClose: () => void; onCredits: () => void }) {
+  return (
+    <Sheet label="Sound" onClose={onClose}>
+      <div className="flex flex-col gap-2">
+        <SoundControls />
+        <button type="button" className="btn btn-quiet" onClick={onCredits}>
+          Credits
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
 export function MenuSheet({
   view,
   pending,
   onClose,
   onRules,
+  onCredits,
   act,
 }: {
   view: RoomView;
   pending: boolean;
   onClose: () => void;
   onRules: () => void;
+  onCredits: () => void;
   act: (a: { type: "playAgain" } | { type: "endGame" }) => Promise<boolean>;
 }) {
-  const [sound, setSound] = useState(false);
   const [copied, setCopied] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
-  useEffect(() => setSound(soundEnabled()), []);
 
   const link = typeof window === "undefined" ? "" : `${window.location.origin}/${view.code}`;
   return (
@@ -119,17 +196,13 @@ export function MenuSheet({
         >
           {copied ? "Link copied" : "Copy invite link"}
         </button>
-        <button
-          type="button"
-          className="btn"
-          aria-pressed={sound}
-          onClick={() => {
-            setSoundEnabled(!sound);
-            setSound(!sound);
-          }}
-        >
-          Sound: {sound ? "on" : "off"}
+
+        <SoundControls />
+
+        <button type="button" className="btn btn-quiet" onClick={onCredits}>
+          Credits
         </button>
+
         {view.me.isHost && (
           <>
             <button type="button" className="btn" disabled={pending} onClick={async () => (await act({ type: "playAgain" })) && onClose()}>
